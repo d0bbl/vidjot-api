@@ -26,17 +26,22 @@ module.exports = {
       throwError(e.status, e.message || e.toString());
     }
   },
-  show : async ( constraint, res ) => {
+  show : async ( constraint, userId, res ) => {
     try {
-      const idea = await IdeaModel.findOne(constraint).select("-_id -user");
-      if(idea.status !== "public" && constraint !== idea._id) {
-        throwError(409, "Not Authorized");
-      }
-
-      if ( !idea ) {
+      const {user} = userId;
+      const idCheck = await IdeaModel.findById(constraint).select("user");
+      if ( !idCheck ) {
        throwError( 404, IdeaModel.INVALID_ID_IDEA_MSG );
       }
-      return idea;
+      const idea = await IdeaModel.findOne(constraint).select("-_id -user").lean();
+      if ( user == idCheck.user) {
+          return idea;
+      }
+      if (idCheck.status == "public") {
+        return idea;
+      }
+        throwError(409, "Not Authorized");
+
     } catch (e) {
       throwError(e.status, e.message || e.toString());
     }
@@ -50,7 +55,7 @@ module.exports = {
       throwError(409, "Not Authorized");
       }
 
-      const idea = await IdeaModel.findOneAndUpdate(constraint, update, { new: true } );
+      const idea = await IdeaModel.updateOne(constraint, update, { new: true });
 
       if ( !idea ) {
        throwError( 404, IdeaModel.INVALID_ID_IDEA_MSG );

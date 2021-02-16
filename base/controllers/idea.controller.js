@@ -63,6 +63,7 @@ exports.showIdea = catchAsync( async ( req, res, next) => {
 
       const idea = await IdeaService.show(
           constraint,
+          req.body,
           res
       );
 
