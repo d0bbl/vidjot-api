@@ -89,14 +89,5 @@ exports.validate = (details) => {
           .withMessage('ID should be a Mongo ID'),
       ];
     }
-
-    case 'profile': {
-      return [
-        body('fname').optional().isString().withMessage('Enter a valid email'),
-        body('lname').optional().isString().withMessage('Enter a valid email'),
-        body('bio').optional().isString().withMessage('Enter a valid email'),
-        body('string').optional().isString().withMessage('Enter a valid email'),
-      ];
-    }
   }
 }
