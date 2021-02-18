@@ -36,7 +36,7 @@ exports.validate = (details) => {
         .isString()
         .escape()
         .withMessage("Your Idea is missing its details"),
-        body('userId')
+        body('user')
           .exists()
           .withMessage('ID is required')
           .isMongoId()
@@ -54,6 +54,11 @@ exports.validate = (details) => {
           .withMessage('ID is required')
           .isMongoId()
           .withMessage('ID should be a Mongo ID'),
+          body('user')
+            .exists()
+            .withMessage('ID is required')
+            .isMongoId()
+            .withMessage('ID should be a Mongo ID'),
       ];
     }
 
@@ -73,6 +78,11 @@ exports.validate = (details) => {
     case 'delete': {
       return [
         param('ideaId')
+          .exists()
+          .withMessage('ID is required')
+          .isMongoId()
+          .withMessage('ID should be a Mongo ID'),
+        body('user')
           .exists()
           .withMessage('ID is required')
           .isMongoId()

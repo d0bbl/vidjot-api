@@ -75,9 +75,7 @@ module.exports = {
       //   updateProp[keys.propName] = keys.value;
       // }
 
-      const profile = await UserModel.findByIdAndUpdate(constraint, {$set: updateDetails}, {returnOriginal: false}).select("-password");
-
-      return profile;
+      return await UserModel.findByIdAndUpdate(constraint, {$set: updateDetails}, {returnOriginal: false}).select("-password");
 
     } catch (e) {
       throwError(e.status, e.message || e.toString())
