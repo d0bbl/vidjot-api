@@ -1,7 +1,9 @@
+
 config
 nodemon.json
 node_modules
 .yarn
+.env
 !/.yarn/releases
 !/.yarn/plugins
 !/.yarn/sdks
