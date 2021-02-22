@@ -36,7 +36,6 @@ module.exports = {
       }
       const user = new UserModel(newUser);
       await user.save();
-      delete user.password;
       return user;
     } catch (e) {
       throwError(e.status, e.message || e.toString())
@@ -48,7 +47,7 @@ module.exports = {
     try {
       const {limit, sort} = pageOptions;
       const user = await UserModel.find({status : "public"})
-      .limit(limit)
+      // .limit(limit)
       .sort(sort)
       .select("-_id name bio")
       .lean();
@@ -84,9 +83,7 @@ module.exports = {
 
   userDelete: async (constraint, res) => {
     try {
-      const deletion = await UserModel.findByIdAndDelete(constraint);
-
-      return deletion;
+      return await UserModel.findByIdAndDelete(constraint);
 
     } catch (e) {
       throwError(e.status, e.message || e.toString())
@@ -97,6 +94,5 @@ module.exports = {
 
 const createToken = (user) => {
   delete user.password;
-
   return jwt.sign({ user }, process.env.JWT_KEY, { expiresIn: '5h' });
 };

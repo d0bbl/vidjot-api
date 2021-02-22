@@ -10,6 +10,7 @@ module.exports =
   }
   const decoded = jwt.verify(token, process.env.JWT_KEY);
   req.decoded = decoded;
+  res.locals.decoded = req.decoded || null;
   next();
 
   } catch (error) {

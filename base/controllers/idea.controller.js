@@ -8,25 +8,17 @@ exports.getIdeas = catchAsync( async ( req, res, next ) => {
     try {
 
         const pageOptions = {
-            limit: (req.query && parseInt(req.query.limit, 10)) || 10,
+            limit: (req.query && parseInt(req.query.limit, 10)) || "100",
             sort: (req.query && req.query.sort) || '-createdAt'
         };
 
-        const constraint = {
-          status: "public"
-        };
+        const ideas = await IdeaService.getAll( pageOptions, res );
+        const count = await IdeaService.count(res);
 
-        const ideas = await IdeaService.getAll( constraint, res, pageOptions );
-        const count = await IdeaService.count(constraint, res);
-
-        return dataParser(
-            res,
-            200,
-            IdeaModel.GET_IDEA_MSG,
-            ideas,
-            count
-        );
-
+        if (ideas) {
+          return dataParser(res, 200, "List of public ideas", ideas, count);
+        }
+          return res.json({message: `No user with a public idea exists yet`});
 
     } catch (e) {
 
@@ -39,8 +31,14 @@ exports.getIdeas = catchAsync( async ( req, res, next ) => {
 exports.postIdea = catchAsync( async (req, res, next) => {
 
   try {
+    const{ _id: id } = req.decoded;
 
     const newIdea = req.body;
+    if (!newIdea.user) {
+    newIdea.user = id;
+    }
+
+    console.log(newIdea);
     const idea = await IdeaService.post(newIdea, res);
 
     return dataParser(res, 200, IdeaModel.CREATED_IDEA_MSG, idea);
@@ -55,19 +53,46 @@ exports.showIdea = catchAsync( async ( req, res, next) => {
 
   try{
 
-      const { ideaId } = req.params;
+      const { ideaId: id } = req.params;
 
-      const constraint = {
-          _id : ideaId
-      };
+      // const id = {
+      //     _id : ideaId
+      // };
 
-      const idea = await IdeaService.show(
-          constraint,
-          req.body,
+      // const status = req.query.status || "public";
+
+      const shownIdea = await IdeaService.show(
+          id,
+          req.decoded.user,
           res
       );
 
-      return dataParser(res, 200, IdeaModel.GET_IDEA_MSG, idea);
+      return dataParser(res, 200, IdeaModel.GET_IDEA_MSG, shownIdea);
+
+  } catch (e) {
+
+      return catchResponse(res, e);
+
+  }
+})
+
+exports.myIdeas = catchAsync( async ( req, res, next) => {
+
+  try{
+
+      const pageOptions = {
+        status: (req.body.status) || "private",
+        sort: (req.query && req.query.sort) || '-createdAt'
+      }
+
+      const idea = await IdeaService.personal(
+          pageOptions,
+          req.decoded.user,
+          res
+      );
+      if (idea) {
+        return dataParser(res, 200, IdeaModel.GET_IDEA_MSG, idea);
+      }
 
   } catch (e) {
 

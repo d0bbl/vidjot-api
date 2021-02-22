@@ -1,6 +1,14 @@
-const { param, body } = require('express-validator');
+const { param, body, checkSchema } = require('express-validator');
 
-// let details = " ";
+let schema = {
+  "status": {
+    in: "body",
+    isIn: {
+      options: [["public", "private", "unpublished"]],
+      errorMessage: "Invalid idea status"
+    }
+  }
+}
 
 exports.validate = (details) => {
   switch (details) {
@@ -29,21 +37,21 @@ exports.validate = (details) => {
     case "post": {
       return [
         body("title")
-        .isString()
-        .escape()
-        .withMessage("Your Idea is missing a title"),
+          .isString()
+          .escape()
+          .withMessage("Your Idea is missing a title"),
         body("details")
-        .isString()
-        .escape()
-        .withMessage("Your Idea is missing its details"),
+          .isString()
+          .escape()
+          .withMessage("Your Idea is missing its details"),
         body('user')
           .exists()
           .withMessage('ID is required')
           .isMongoId()
           .withMessage('ID should be a Mongo ID'),
         body("status")
-        .isString()
-        .withMessage("Choose to make your idea private or public"),
+          .isString()
+          .withMessage("Choose to make your idea private or public"),
       ];
     }
 
@@ -54,11 +62,12 @@ exports.validate = (details) => {
           .withMessage('ID is required')
           .isMongoId()
           .withMessage('ID should be a Mongo ID'),
-          body('user')
-            .exists()
-            .withMessage('ID is required')
-            .isMongoId()
-            .withMessage('ID should be a Mongo ID'),
+      ];
+    }
+
+    case 'myIdeas': {
+      return [
+        checkSchema(schema)
       ];
     }
 

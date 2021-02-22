@@ -2,19 +2,22 @@ const { throwError } = require("../../utilities/response");
 const IdeaModel = require("../models/idea.model");
 
 module.exports = {
-  count : async (criteria, res) => {
+  count : async (res) => {
     try {
-      return await IdeaModel.find(criteria).countDocuments();
+      return await IdeaModel.find({status: "public"}).countDocuments();
     } catch (e) {
       throwError(e.status, e.message || e.toString());
     }
   },
-  getAll : async ( criteria, res, pageOptions) => {
+  getAll : async ( pageOptions, res) => {
     try {
       const { sort, limit } = pageOptions;
-      return await IdeaModel.find({criteria}, "title details")
+      const ideas = await IdeaModel.find({status: "public"}, 'title details createdAt').populate({path: "user", select: "name -_id"})
+
       .sort(sort)
-      .limit(limit);
+      .lean();
+
+      return ideas;
     } catch (e) {
       throwError(e.status, e.message || e.toString());
     }
@@ -26,21 +29,32 @@ module.exports = {
       throwError(e.status, e.message || e.toString());
     }
   },
-  show : async ( constraint, userId, res ) => {
+  show : async ( id, data, res ) => {
     try {
-      const {user} = userId;
-      const idCheck = await IdeaModel.findById(constraint).select("user");
+      const {_id: userId} = data;
+      const idCheck = await IdeaModel.find({_id: id});
       if ( !idCheck ) {
        throwError( 404, IdeaModel.INVALID_ID_IDEA_MSG );
       }
-      const idea = await IdeaModel.findOne(constraint).select("-_id -user").lean();
-      if ( user == idCheck.user) {
-          return idea;
+      if ( userId == idCheck.user) {
+          return idCheck;
       }
       if (idCheck.status == "public") {
-        return idea;
+          delete idCheck.user && idCheck._id;
+          return idCheck;
       }
         throwError(409, "Not Authorized");
+
+    } catch (e) {
+      throwError(e.status, e.message || e.toString());
+    }
+  },
+
+  personal : async ( pageOptions, userId, res ) => {
+    try {
+      const {status, sort} = pageOptions;
+      const {_id: id} = userId;
+      return await IdeaModel.find({user: id}).where("status").equals(status).sort(sort).lean();
 
     } catch (e) {
       throwError(e.status, e.message || e.toString());

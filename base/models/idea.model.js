@@ -12,6 +12,7 @@ const ideaApiSchema = new Schema({
   },
   status: {
     type: String,
+    enum: ["private", "public", "unpublished"],
     default: "public"
   },
   user: {

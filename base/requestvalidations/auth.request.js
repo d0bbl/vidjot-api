@@ -1,6 +1,14 @@
-const { body, param } = require('express-validator');
+const { body, param, checkSchema } = require('express-validator');
 
-// let details = " ";
+let schema = {
+  "status": {
+    in: "body",
+    isIn: {
+      options: [["public", "private", "unpublished"]],
+      errorMessage: "Invalid status"
+    }
+  }
+}
 
 exports.validate = (details) => {
   switch (details) {
@@ -20,6 +28,7 @@ exports.validate = (details) => {
           .trim()
           .escape()
           .withMessage('Password must be at least 3 characters long'),
+        checkSchema(schema)
       ];
     }
 
@@ -38,10 +47,9 @@ exports.validate = (details) => {
     case 'delete': {
       return [
         param('userId')
-          .exists()
-          .withMessage('ID is required')
-          .isMongoId()
-          .withMessage('ID should be a Mongo ID'),
+          .optional()
+          // .isMongoId()
+          // .withMessage('ID should be a Mongo ID'),
       ];
     }
 
@@ -54,8 +62,7 @@ exports.validate = (details) => {
           .withMessage('ID should be a Mongo ID'),
         body('name').isLength({ min: 2 }).optional().withMessage('Name should not be less than 2 characters'),
         body('bio').optional().isString(),
-        body('status').optional().isString(),
-
+        checkSchema(schema)
       ];
     }
   }

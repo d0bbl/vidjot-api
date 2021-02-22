@@ -29,7 +29,9 @@ exports.registerUser = catchAsync( async (req, res, next) => {
 
     const user = await UserService.register(req.body, res);
     const userDetails = await UserService.login(req.body, res);
-
+    if (userDetails) {
+    delete userDetails.profile.user.password;
+    }
     if (user) {
     return res.status(201).json({
       message: "User registered",
@@ -48,8 +50,8 @@ exports.getUsers = catchAsync( async ( req, res, next) => {
 
   try{
     const pageOptions = {
-        limit: (req.query && parseInt(req.query.limit, 10)) || 5,
-        sort: (req.query && req.query.sort) || ' '
+        // limit: (req.query && parseInt(req.query.limit, 10)) || 5,
+        sort: (req.query && req.query.sort) || '-1'
     };
 
     const users = await UserService.getUsers(pageOptions, res);
@@ -80,7 +82,7 @@ exports.updateProfile = catchAsync( async ( req, res, next) => {
 
   try {
 
-    const {userId} = req.params;
+    const { _id:  userId } = req.decoded.user;
 
     const updated = await UserService.profileUpdate(userId, req.body, res);
     if (!updated) {
@@ -100,9 +102,9 @@ exports.deleteUser = catchAsync( async ( req, res, next) => {
 
   try {
 
-    const { userId } = req.params;
+    const { _id:  userId } = req.decoded.user;
 
-    const deletion = await UserService.userDelete(userId, res);
+    const deletion = await UserService.userDelete(userId || req.params.userId, res);
 
     if (!deletion) {
        return errorResponse(res, 409, "Failed to delete profile");

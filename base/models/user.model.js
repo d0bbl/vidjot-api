@@ -21,6 +21,7 @@ const userSchema = new Schema({
   },
   status:{
     type: String,
+    enum: ["public", "private", "unpublished"],
     default: "private"
   }
 }, { timestamps: true });
@@ -36,13 +37,6 @@ userSchema.pre('save', function (next) {
     next();
   });
 });
-
-const accessControl = function (next, err) {
-  
-}
-
-userSchema.pre("findByIdAndUpdate", accessControl);
-userSchema.pre("findByIdAndDelete", accessControl);
 
 // userSchema.post("findOne", {query: false, document: true}, function(error, doc, next) {
 //
