@@ -31,7 +31,7 @@ exports.getIdeas = catchAsync( async ( req, res, next ) => {
 exports.postIdea = catchAsync( async (req, res, next) => {
 
   try {
-    const{ _id: id } = req.decoded;
+    const{ _id: id } = req.decoded.user;
 
     const newIdea = req.body;
     if (!newIdea.user) {
@@ -90,6 +90,9 @@ exports.myIdeas = catchAsync( async ( req, res, next) => {
           req.decoded.user,
           res
       );
+      if (idea == "") {
+        return dataParser(res, 200, `You are yet to add a ${pageOptions.status} idea`);
+      }
       if (idea) {
         return dataParser(res, 200, IdeaModel.GET_IDEA_MSG, idea);
       }
@@ -112,8 +115,12 @@ exports.updateIdea = catchAsync( async ( req, res, next) => {
         _id : ideaId
     };
 
-    const updated = await IdeaService.update( constraint, update, res);
+    const {_id} = req.decoded.user;
 
+    const updated = await IdeaService.update( _id, constraint, update, res);
+    if(!updated) {
+      return res.json({message: `failed to update idea`});
+    }
     return dataParser(res, 200, IdeaModel.UPDATED_IDEA_MSG, updated);
 
   } catch (e) {
@@ -133,7 +140,9 @@ exports.deleteIdea = catchAsync( async ( req, res, next) => {
         _id : ideaId
     };
 
-    const deletion = await IdeaService.delete(constraint, req.body, res);
+    let id = req.decoded.user._id || req.body.user;
+
+    const deletion = await IdeaService.delete(constraint, id, res);
 
     return dataParser(res, 200, IdeaModel.DELETED_IDEA_MSG);
 

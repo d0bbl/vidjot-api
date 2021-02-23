@@ -54,27 +54,25 @@ module.exports = {
     try {
       const {status, sort} = pageOptions;
       const {_id: id} = userId;
-      return await IdeaModel.find({user: id}).where("status").equals(status).sort(sort).lean();
+      return await IdeaModel.find({user: id}, "-user").where("status").equals(status).sort(sort).lean();
 
     } catch (e) {
       throwError(e.status, e.message || e.toString());
     }
   },
 
-  update : async ( constraint, update, res ) => {
+  update : async ( _id, constraint, update, res ) => {
     try {
-      const check = await IdeaModel.findOne(constraint);
-
-      if(check.user !== update.user) {
-      throwError(409, "Not Authorized");
+      const check = await IdeaModel.findOne(constraint).lean();
+      if ( !check ) {
+        throwError( 404, IdeaModel.INVALID_ID_IDEA_MSG );
       }
 
-      const idea = await IdeaModel.updateOne(constraint, update, { new: true });
+      // if(check.user != _id) {
+      // throwError(409, "Not Authorized");
+      // }
+      return await IdeaModel.findOneAndUpdate(constraint, update, { returnOriginal: false }).where("user").equals(_id).lean();
 
-      if ( !idea ) {
-       throwError( 404, IdeaModel.INVALID_ID_IDEA_MSG );
-      }
-      return idea;
     } catch (e) {
       throwError(e.status, e.message || e.toString());
     }
@@ -82,9 +80,9 @@ module.exports = {
 
   delete : async ( constraint, id, res ) => {
     try {
-      const checkdel = await IdeaModel.findOne(constraint);
+      const checkdel = await IdeaModel.findOne(constraint).lean();
 
-      if(checkdel.user !== id.user) {
+      if(checkdel.user != id) {
       throwError(409, "Not Authorized");
       }
 

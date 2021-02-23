@@ -15,6 +15,7 @@ module.exports = {
           if(!userdoc) {
             throwError(409, "Invalid credentials");
           }
+          delete user.password;
           return {
             profile: user,
             token: createToken(user)

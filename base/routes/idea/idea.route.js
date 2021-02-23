@@ -8,9 +8,9 @@ const router = express.Router();
 
 router.get('/ideas', IdeaController.getIdeas);
 
-router.get("/ideas/:ideaId", [ jwtV, validate("show"), ifInvalid ], IdeaController.showIdea);
-
 router.get("/ideas/myIdeas", [ jwtV, validate("myIdeas"), ifInvalid ], IdeaController.myIdeas);
+
+router.get("/ideas/:ideaId", [ jwtV, validate("show"), ifInvalid ], IdeaController.showIdea);
 
 router.post("/ideas/post", [ jwtV, validate("post"), ifInvalid ], IdeaController.postIdea);
 

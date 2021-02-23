@@ -29,9 +29,9 @@ exports.registerUser = catchAsync( async (req, res, next) => {
 
     const user = await UserService.register(req.body, res);
     const userDetails = await UserService.login(req.body, res);
-    if (userDetails) {
-    delete userDetails.profile.user.password;
-    }
+    // if (userDetails) {
+    // delete userDetails.profile.user.password;
+    // }
     if (user) {
     return res.status(201).json({
       message: "User registered",

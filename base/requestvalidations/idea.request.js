@@ -45,8 +45,7 @@ exports.validate = (details) => {
           .escape()
           .withMessage("Your Idea is missing its details"),
         body('user')
-          .exists()
-          .withMessage('ID is required')
+          .optional()
           .isMongoId()
           .withMessage('ID should be a Mongo ID'),
         body("status")
@@ -81,6 +80,7 @@ exports.validate = (details) => {
         body('title').optional().isString(),
         body('details').optional().isString(),
         body('status').optional().isString(),
+        body('user').optional().isMongoId().withMessage('user should be a Mongo ID'),
       ];
     }
 
@@ -92,8 +92,7 @@ exports.validate = (details) => {
           .isMongoId()
           .withMessage('ID should be a Mongo ID'),
         body('user')
-          .exists()
-          .withMessage('ID is required')
+          .optional()
           .isMongoId()
           .withMessage('ID should be a Mongo ID'),
       ];
