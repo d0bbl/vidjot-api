@@ -38,7 +38,6 @@ exports.postIdea = catchAsync( async (req, res, next) => {
     newIdea.user = id;
     }
 
-    console.log(newIdea);
     const idea = await IdeaService.post(newIdea, res);
 
     return dataParser(res, 200, IdeaModel.CREATED_IDEA_MSG, idea);
@@ -66,8 +65,9 @@ exports.showIdea = catchAsync( async ( req, res, next) => {
           req.decoded.user,
           res
       );
-
+      if (shownIdea) {
       return dataParser(res, 200, IdeaModel.GET_IDEA_MSG, shownIdea);
+      }
 
   } catch (e) {
 
@@ -121,6 +121,7 @@ exports.updateIdea = catchAsync( async ( req, res, next) => {
     if(!updated) {
       return res.json({message: `failed to update idea`});
     }
+    delete updated.user;
     return dataParser(res, 200, IdeaModel.UPDATED_IDEA_MSG, updated);
 
   } catch (e) {

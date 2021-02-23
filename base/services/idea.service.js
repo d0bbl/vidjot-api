@@ -32,15 +32,18 @@ module.exports = {
   show : async ( id, data, res ) => {
     try {
       const {_id: userId} = data;
-      const idCheck = await IdeaModel.find({_id: id});
+      console.log(userId);
+      const idCheck = await IdeaModel.findOne({_id: id}, "-__v").lean();
+      console.log(idCheck);
       if ( !idCheck ) {
        throwError( 404, IdeaModel.INVALID_ID_IDEA_MSG );
       }
       if ( userId == idCheck.user) {
+          delete idCheck.user;
           return idCheck;
       }
       if (idCheck.status == "public") {
-          delete idCheck.user && idCheck._id;
+          delete idCheck.user;
           return idCheck;
       }
         throwError(409, "Not Authorized");
